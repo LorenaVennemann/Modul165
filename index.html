@@ -27,6 +27,12 @@
         .active {
             background-color: #4CAF50;
         }
+
+        .download-btn {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -62,7 +68,22 @@
                     img.style.width = '200px';
                     img.style.height = 'auto';
                     img.style.margin = '10px';
-                    imageContainer.appendChild(img);
+                    img.addEventListener('click', function() {
+                        openImageInNewTab(url);
+                    });
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'download-btn';
+                    downloadBtn.innerText = 'Download';
+                    downloadBtn.addEventListener('click', function(event) {
+                        event.stopPropagation(); // Prevent the click event from bubbling up to the image
+                        downloadImage(url);
+                    });
+
+                    const container = document.createElement('div');
+                    container.appendChild(img);
+                    container.appendChild(downloadBtn);
+                    imageContainer.appendChild(container);
                 });
 
                 document.getElementById('uploadForm').style.display = 'none';
@@ -82,7 +103,17 @@
             document.getElementById('uploadForm').style.display = 'block';
         }
 
-        // Initial aufrufen, um Bilder anzuzeigen
+        function openImageInNewTab(url) {
+            window.open(url, '_blank');
+        }
+
+        function downloadImage(url) {
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = 'image';
+            anchor.click();
+        }
+
         getImages();
     </script>
 </body>
