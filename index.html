@@ -28,7 +28,8 @@
             background-color: #4CAF50;
         }
 
-        .download-btn {
+        .download-btn,
+        .delete-btn {
             display: block;
             margin-top: 10px;
             text-align: center;
@@ -64,25 +65,31 @@
 
                 imageUrls.forEach(url => {
                     const img = document.createElement('img');
-                    img.src = url;
+                    img.src = url.url;
                     img.style.width = '200px';
                     img.style.height = 'auto';
                     img.style.margin = '10px';
-                    img.addEventListener('click', function() {
-                        openImageInNewTab(url);
-                    });
 
                     const downloadBtn = document.createElement('button');
                     downloadBtn.className = 'download-btn';
                     downloadBtn.innerText = 'Download';
                     downloadBtn.addEventListener('click', function(event) {
                         event.stopPropagation(); // Prevent the click event from bubbling up to the image
-                        downloadImage(url);
+                        downloadImage(url.url);
+                    });
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.innerText = 'Delete';
+                    deleteBtn.addEventListener('click', function(event) {
+                        event.stopPropagation(); // Prevent the click event from bubbling up to the image
+                        deleteImage(url.id);
                     });
 
                     const container = document.createElement('div');
                     container.appendChild(img);
                     container.appendChild(downloadBtn);
+                    container.appendChild(deleteBtn);
                     imageContainer.appendChild(container);
                 });
 
@@ -103,10 +110,6 @@
             document.getElementById('uploadForm').style.display = 'block';
         }
 
-        function openImageInNewTab(url) {
-            window.open(url, '_blank');
-        }
-
         function downloadImage(url) {
             const anchor = document.createElement('a');
             anchor.href = url;
@@ -114,7 +117,21 @@
             anchor.click();
         }
 
-        getImages();
+        async function deleteImage(imageId) {
+    try {
+        console.log(imageId)
+        const response = await fetch(`/images/${imageId}`, { method: 'DELETE' });
+        if (response.ok) {
+            getImages(); // Bilder neu laden, um die Aktualisierung anzuzeigen
+        } else {
+            console.error('Fehler beim Löschen des Bildes');
+        }
+    } catch (error) {
+        console.error('Fehler beim Löschen des Bildes:', error);
+    }
+}
+
+
     </script>
 </body>
 </html>

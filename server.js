@@ -52,7 +52,10 @@ app.get('/images', async (req, res) => {
             return res.status(404).json({ message: 'Keine Bilder gefunden.' });
         }
         console.log(files)
-        const imageUrls = files.map(file => `/images/${file.filename}`);
+        const imageUrls = files.map((file) => {return({
+            "url": `/images/${file.filename}`,
+            "id": file._id
+        })})
         res.json(imageUrls);
     } catch (err) {
         console.error('Fehler beim Abrufen der Bilder:', err);
@@ -83,6 +86,8 @@ app.get('/images/:filename', async (req, res) => {
 // Löschen eines Bildes
 app.delete('/images/:id', async (req, res) => {
     try {
+        const id = new ObjectId(req.params.id);
+        console.log(id) 
         const gridfs = await getGridFS();
         await gridfs.delete(id);
 
