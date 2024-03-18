@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, GridFSBucket, ObjectID } = require('mongodb');
+const { MongoClient, GridFSBucket, ObjectId } = require('mongodb');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
@@ -35,8 +35,10 @@ const upload = multer({ dest: 'uploads/' });
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', async (req, res) => {
-    console.log(process.env.url)
-    res.sendFile('C:/Work/alleordner/TBZ/Modul165/index.html')
+    const pfad = __dirname
+
+    console.log(pfad)
+    res.sendFile(__dirname+'/index.html')
 })
 
 
@@ -49,7 +51,7 @@ app.get('/images', async (req, res) => {
         if (!files || files.length === 0) {
             return res.status(404).json({ message: 'Keine Bilder gefunden.' });
         }
-
+        console.log(files)
         const imageUrls = files.map(file => `/images/${file.filename}`);
         res.json(imageUrls);
     } catch (err) {
@@ -82,7 +84,6 @@ app.get('/images/:filename', async (req, res) => {
 app.delete('/images/:id', async (req, res) => {
     try {
         const gridfs = await getGridFS();
-        const id = new ObjectID(req.params.id);
         await gridfs.delete(id);
 
         res.status(200).json({ message: 'Bild erfolgreich gelöscht.' });
@@ -94,10 +95,13 @@ app.delete('/images/:id', async (req, res) => {
 
 app.post('/upload', upload.single('image'), async (req, res) => {
     try {
+        const existingObjectId = '507f191e810c19729de860ea'; // Beispielwert
+        const objectIdAsHex = new ObjectId(existingObjectId).toString();
+        console.log('ObjectID als Hexadezimal-String:', objectIdAsHex);
         const gridfs = await getGridFS();
         const fileStream = fs.createReadStream(req.file.path);
-        const uploadStream = gridfs.openUploadStream(req.file.originalname);
-        
+        const uploadStream = gridfs.openUploadStream(req.file.originalname, [objectIdAsHex]);
+        console.log("id vom object:", uploadStream.id)
         fileStream.on('error', (err) => {
             console.error('Fehler beim Lesen der Datei:', err);
             res.status(500).json({ message: 'Interner Serverfehler beim Hochladen der Datei.' });
@@ -108,7 +112,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
             res.status(500).json({ message: 'Interner Serverfehler beim Hochladen der Datei.' });
         });
 
-        uploadStream.on('finish', () => {
+        uploadStream.on('finish', (info) => {
             console.log('Datei erfolgreich hochgeladen');
             fs.unlink(req.file.path, (err) => {
                 if (err) {
