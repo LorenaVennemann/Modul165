@@ -40,11 +40,11 @@ app.get('/', async (req, res) => {
     const pfad = __dirname
 
     console.log(pfad)
-    res.sendFile(__dirname+'/register.html')
+    res.sendFile(__dirname+'/public/index.html')
 })
 
 app.get('/login', (req, res) => {
-    res.sendFile(__dirname+"/Login.html")
+    res.sendFile(__dirname+"/public/Login.html")
 })
 
 // Registrierungsroute
@@ -80,6 +80,7 @@ app.post('/register', async (req, res) => {
 
 // Loginroute
 app.post('/login', async (req, res) => {
+    console.log(req.body)
     const { username, password } = req.body;
     if (!username || !password) {
         return res.status(400).json({ message: 'Benutzername und Passwort erforderlich' });

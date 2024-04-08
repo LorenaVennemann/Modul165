@@ -47,7 +47,6 @@ try {
   imageUrls.forEach((url) => {
     const fileName = extrahiereSlug(url.url);
     console.log(fileName);
-    const isImage = fileName.substr(fileName.length - 3);
     if (fileName.match(/\.(jpeg|jpg|gif|png)$/i) !== null) {
       const img = document.createElement("img");
       element = img;
