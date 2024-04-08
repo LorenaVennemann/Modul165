@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nielo Transaktions - Registrieren</title>
+    <style>
+        /* Allgemeine Stile */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Formular-Stile */
+        .form {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+            margin: 20px auto;
+        }
+
+        .form h2 {
+            margin-top: 0;
+        }
+
+        .form input[type="text"],
+        .form input[type="password"],
+        .form input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .form input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Registrierungsformular -->
+    <div class="form">
+        <h2>Registrieren</h2>
+        <form id="registerForm" action="/register" method="post" onsubmit="return redirectToLogin()">
+            <input type="text" placeholder="Benutzername" name="username" required>
+            <input type="password" placeholder="Passwort" name="password" required>
+            <input type="submit" value="Registrieren">
+        </form>
+    </div>
+</div>
+
+<script>
+    function redirectToLogin() {
+        window.location.href = 'Login.html'; // Weiterleitung zur Login-Seite
+    }
+</script>
+
+</body>
+</html>
