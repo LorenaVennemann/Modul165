@@ -7,7 +7,7 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-const uri = 'mongodb://172.17.0.2:27017';
+const uri = 'mongodb://localhost:27017';
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 app.use(express.json()); // Parse JSON-encoded request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
@@ -46,7 +46,9 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(__dirname+"/public/Login.html")
 })
-
+app.get('/register', (req, res) => {
+    res.sendFile(__dirname+"/public/register.html")
+})
 // Registrierungsroute
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
