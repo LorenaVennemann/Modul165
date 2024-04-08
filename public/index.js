@@ -61,15 +61,12 @@ try {
     }
 
     const downloadBtn = document.createElement("button");
-    downloadBtn.className = "download-btn";
     downloadBtn.innerText = "Download";
     downloadBtn.addEventListener("click", function (event) {
-      event.stopPropagation(); // Prevent the click event from bubbling up to the image
       downloadImage(fileName, url.url);
     });
 
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete-btn";
     deleteBtn.innerText = "Delete";
     deleteBtn.addEventListener("click", function (event) {
       event.stopPropagation(); // Prevent the click event from bubbling up to the image
@@ -103,6 +100,7 @@ document.getElementById("uploadForm").style.display = "block";
 function downloadImage(filename, url) {
 const anchor = document.createElement("a");
 anchor.href = url;
+alert(filename)
 anchor.download = filename; // Der gewünschte Dateiname
 anchor.click();
 }
