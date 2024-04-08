@@ -100,7 +100,6 @@ document.getElementById("uploadForm").style.display = "block";
 function downloadImage(filename, url) {
 const anchor = document.createElement("a");
 anchor.href = url;
-alert(filename)
 anchor.download = filename; // Der gewünschte Dateiname
 anchor.click();
 }
