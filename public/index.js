@@ -52,7 +52,7 @@ try {
       element = img;
       img.src = url.url;
       img.style.width = "200px";
-      img.style.height = "auto";
+      img.style.height = "200px";
       img.style.margin = "10px";
     } else {
       const p = document.createElement("p");
@@ -98,10 +98,13 @@ document.getElementById("uploadForm").style.display = "block";
 }
 
 function downloadImage(filename, url) {
-const anchor = document.createElement("a");
-anchor.href = url;
-anchor.download = filename; // Der gewünschte Dateiname
-anchor.click();
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename; // Der gewünschte Dateiname
+  anchor.textContent = "Download " + filename; // Optional: Text für den Link
+  document.body.appendChild(anchor); // Fügen Sie den Link zum Dokument hinzu
+  anchor.click(); // Klicken Sie auf den Link, um den Download zu starten
+  document.body.removeChild(anchor); // Entfernen Sie den Link aus dem Dokument
 }
 
 async function deleteImage(imageId) {
