@@ -46,7 +46,9 @@ app.get('/', async (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(__dirname+"/public/Login.html")
 })
-
+app.get('/register', (req, res) => {
+    res.sendFile(__dirname+"/public/register.html")
+})
 // Registrierungsroute
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
