@@ -156,11 +156,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-const index = fs.readFileSync(__dirname + "/index.html");
-app.get("/socket", (req, res) => {
-  res.writeHead(200, { "Content-Type": "text/html" });
-  res.end(index);
-});
+
 io.on("connection", (socket) => {
 let globalUsername;
   console.log(`Neuer Client verbunden: ${socket.id}`);

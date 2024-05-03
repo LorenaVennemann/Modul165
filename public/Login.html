@@ -1,118 +1,114 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nielo Transaktions - Login</title>
-    <style>
-      /* Allgemeine Stile */
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
 
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nielo Transaktions - Login</title>
+  <style>
+    /* Allgemeine Stile */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
-      /* Formular-Stile */
-      .form {
-        padding: 20px;
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        width: 300px;
-        margin: 20px auto;
-      }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-      .form h2 {
-        margin-top: 0;
-      }
+    /* Formular-Stile */
+    .form {
+      padding: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      width: 300px;
+      margin: 20px auto;
+    }
 
-      .form input[type="text"],
-      .form input[type="password"],
-      .form input[type="submit"] {
-        width: 100%;
-        padding: 10px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
+    .form h2 {
+      margin-top: 0;
+    }
 
-      .form input[type="submit"] {
-        background-color: #4caf50;
-        color: white;
-        border: none;
-        cursor: pointer;
-      }
+    .form input[type="text"],
+    .form input[type="password"],
+    .form input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
 
-      .form input[type="submit"]:hover {
-        background-color: #45a049;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <!-- Login-Formular -->
-      <div class="form">
-        <h2>Login</h2>
-        <form id="login">
-          <input
-            type="text"
-            placeholder="Benutzername"
-            name="username"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Passwort"
-            name="password"
-            required
-          />
-          <input type="submit" value="Login" />
-        </form>
+    .form input[type="submit"] {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
 
-        <script>
-          document
-            .getElementById("login")
-            .addEventListener("submit", async function (event) {
-              event.preventDefault(); // Verhindert das Absenden des Formulars
-              const formData = {
-                username: event.target.username.value,
-                password: event.target.password.value,
-              };
-              // Hier können Sie die Daten in einem JSON-Format verwenden oder an den Server senden
-              console.log("Formulardaten:", formData);
+    .form input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
 
-              const response = await fetch("/login", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json", // Setzen Sie den Content-Type auf JSON
-                },
-                body: JSON.stringify(formData), // Konvertieren Sie das Objekt in einen JSON-String
-              });
+<body>
+  <div class="container">
+    <!-- Login-Formular -->
+    <div class="form">
+      <h2>Login</h2>
+      <form id="login">
+        <input type="text" placeholder="Benutzername" name="username" required />
+        <input type="password" placeholder="Passwort" name="password" required />
+        <input type="submit" value="Login" />
+        <p style="color: red;" id="errorText"></p>
 
-              if (response.ok) {
-                const data = await response.json(); // Die Antwort als JSON parsen
-                console.log(data)
-                window.localStorage.setItem("username", data.username)
-                window.localStorage.setItem("password", data.password)
-                location.href = "/"
-              } else {
-                console.error(
-                  "Fehler beim Login:",
-                  response.status,
-                  response.statusText
-                );
-              }
+      </form>
+
+      <script>
+        document
+          .getElementById("login")
+          .addEventListener("submit", async function (event) {
+            event.preventDefault(); // Verhindert das Absenden des Formulars
+            const formData = {
+              username: event.target.username.value,
+              password: event.target.password.value,
+            };
+            // Hier können Sie die Daten in einem JSON-Format verwenden oder an den Server senden
+            console.log("Formulardaten:", formData);
+
+            const response = await fetch("/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json", // Setzen Sie den Content-Type auf JSON
+              },
+              body: JSON.stringify(formData), // Konvertieren Sie das Objekt in einen JSON-String
             });
-        </script>
-      </div>
+
+            if (response.ok) {
+              const data = await response.json(); // Die Antwort als JSON parsen
+              console.log(data)
+              window.localStorage.setItem("username", data.username)
+              window.localStorage.setItem("password", data.password)
+              location.href = "/"
+            } else {
+              document.getElementById("errorText").innerText = "Fehler beim Anmelden. Überprüfe die Anmeldedaten"
+              console.error(
+                "Fehler beim Login:",
+                response.status,
+                response.statusText
+              );
+            }
+          });
+      </script>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>

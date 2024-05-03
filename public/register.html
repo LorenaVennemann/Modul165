@@ -62,10 +62,11 @@
     <!-- Registrierungsformular -->
     <div class="form">
         <h2>Registrieren</h2>
-        <form id="registerForm" action="/register" method="post" onsubmit="return redirectToLogin()">
+        <form id="registerForm">
             <input type="text" placeholder="Benutzername" name="username" required>
             <input type="password" placeholder="Passwort" name="password" required>
             <input type="submit" value="Registrieren">
+            <p style="color: red;" id="errorText"></p>
         </form>
     </div>
 </div>
@@ -91,11 +92,12 @@
     });
 
     if (response.ok) {
+      document.getElementById("errorText").innerText = ""
       const data = await response.json(); // Die Antwort als JSON parsen
-      console.log(data);
       // Hier können Sie weitere Aktionen durchführen, z.B. den Benutzer zur Anmeldeseite umleiten
       window.location.href = "/Login.html"; // Umleitung zur Anmeldeseite
     } else {
+      document.getElementById("errorText").innerText = "Fehler beim Registrieren. Verwenden sie einen anderen Benutzernamen"
       console.error(
         "Fehler bei der Registrierung:",
         response.status,
