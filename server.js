@@ -8,7 +8,7 @@ const path = require("path");
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const uri = "mongodb://172.17.0.2:27017";
+const uri = "mongodb://127.0.0.2:27017";
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,

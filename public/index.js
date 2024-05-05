@@ -5,16 +5,18 @@ socket.emit("login", {
   password: window.localStorage.getItem("password"),
 });
 socket.on("login", () => (location.href = "/login"));
-socket.on("reload", () => getImages());
+socket.on("reload", () => {
+  getImages();
+  getUploadedImages(); // Neu hinzugefügt, um die hochgeladenen Bilder abzurufen
+});
 
 document
   .getElementById("uploadForm")
   .addEventListener("submit", async (event) => {
-    event.preventDefault(); // Verhindert das Standardverhalten des Formulars
+    event.preventDefault();
 
-    const formData = new FormData(event.target); // Erfasse die Formulardaten
+    const formData = new FormData(event.target);
 
-    // Hier kannst du das Bild hochladen oder weitere Aktionen durchführen
     await fetch("/upload", { method: "POST", body: formData })
       .then((res) => {
         showFeedback(true);
@@ -22,7 +24,6 @@ document
       .catch(() => {
         showFeedback(false);
       });
-    // Zeige stattdessen einen Alert an
   });
 
 function showFeedback(status) {
@@ -31,7 +32,7 @@ function showFeedback(status) {
   errorMessageElement.style.opacity = 1;
   errorMessageElement.innerText = status
     ? "Datei erfolgreich hochgeladen"
-    : "Fehler beim hochladen der Datei";
+    : "Fehler beim Hochladen der Datei";
   const initTime = 2000;
   for (let i = 0; i < 100; i++) {
     setTimeout(() => {
@@ -39,10 +40,17 @@ function showFeedback(status) {
     }, i * 10 + initTime);
   }
 }
+
 function extrahiereSlug(url) {
   const urlTeile = url.split("/");
   return urlTeile[urlTeile.length - 1];
 }
+
+function extrahiereSlug(url) {
+  const urlTeile = url.split("/");
+  return urlTeile[urlTeile.length - 1];
+}
+
 async function getImages() {
   try {
     const response = await fetch("/images", {
@@ -52,7 +60,7 @@ async function getImages() {
         password: window.localStorage.getItem("password"),
       }),
       headers: {
-        "Content-Type": "application/json", // Setze den richtigen Content-Type-Header
+        "Content-Type": "application/json",
       },
     });
 
@@ -88,12 +96,10 @@ async function getImages() {
           const p = document.createElement("p");
           element = p;
           p.innerText = fileName;
-
         }
       }
-      let downloadBtn
-      if(!(url.text || url.text === ""))
-      {
+      let downloadBtn;
+      if (!(url.text || url.text === "")) {
         downloadBtn = document.createElement("button");
         downloadBtn.innerText = "Download";
         downloadBtn.addEventListener("click", function () {
@@ -106,23 +112,21 @@ async function getImages() {
       const sahreBtn = document.createElement("button");
       sahreBtn.innerText = "Teilen";
       sahreBtn.addEventListener("click", function (event) {
-        event.stopPropagation(); // Prevent the click event from bubbling up to the image
+        event.stopPropagation();
         share(url.id, sahreInp);
       });
 
       const deleteBtn = document.createElement("button");
       deleteBtn.innerText = "Delete";
       deleteBtn.addEventListener("click", function (event) {
-        event.stopPropagation(); // Prevent the click event from bubbling up to the image
+        event.stopPropagation();
         deleteImage(url.id);
       });
 
       const container = document.createElement("div");
-      container.appendChild(sahreInp);  
+      container.appendChild(sahreInp);
       container.appendChild(element);
-      if(!(url.text || url.text === ""))
-
-container.appendChild(downloadBtn);
+      if (!(url.text || url.text === "")) container.appendChild(downloadBtn);
       container.appendChild(deleteBtn);
       container.appendChild(sahreBtn);
       imageContainer.appendChild(container);
@@ -145,7 +149,7 @@ async function updateTextField(value, id) {
       password: window.localStorage.getItem("password"),
     }),
     headers: {
-      "Content-Type": "application/json", // Setze den richtigen Content-Type-Header
+      "Content-Type": "application/json",
     },
   });
   if (!response.ok) {
@@ -167,11 +171,11 @@ function showUpload() {
 function downloadImage(filename, url) {
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = filename; // Der gewünschte Dateiname
-  anchor.textContent = "Download " + filename; // Optional: Text für den Link
-  document.body.appendChild(anchor); // Fügen Sie den Link zum Dokument hinzu
-  anchor.click(); // Klicken Sie auf den Link, um den Download zu starten
-  document.body.removeChild(anchor); // Entfernen Sie den Link aus dem Dokument
+  anchor.download = filename;
+  anchor.textContent = "Download " + filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
 }
 
 async function share(id, element) {
@@ -182,11 +186,11 @@ async function share(id, element) {
       username: element.value,
     }),
     headers: {
-      "Content-Type": "application/json", // Setze den richtigen Content-Type-Header
+      "Content-Type": "application/json",
     },
   });
-  if(!response.ok){
-    alert("Fehler beim teilen")
+  if (!response.ok) {
+    alert("Fehler beim Teilen");
   }
 }
 
@@ -197,7 +201,7 @@ async function deleteImage(imageId) {
       method: "DELETE",
     });
     if (response.ok) {
-      getImages(); // Bilder neu laden, um die Aktualisierung anzuzeigen
+      getImages();
     } else {
       console.error("Fehler beim Löschen des Bildes");
     }
@@ -209,28 +213,22 @@ async function deleteImage(imageId) {
 document
   .getElementById("form")
   .addEventListener("submit", async function (event) {
-    event.preventDefault(); // Verhindert das Standardverhalten des Formulars (Absenden der Daten)
-    // Erstelle ein FormData-Objekt, um die Formulardaten zu sammeln
+    event.preventDefault();
     const formData = new FormData(this);
-
-    // Füge zusätzliche Werte hinzu (z. B. JSON-Daten)
     const json = {
       username: window.localStorage.getItem("username"),
       password: window.localStorage.getItem("password"),
       time: document.getElementById("time").value,
     };
     formData.append("json", JSON.stringify(json));
-    console.log(formData);
-    // Führe einen Fetch-Aufruf durch, um die Daten an den Server zu senden
     try {
       const response = await fetch("/upload", {
         method: "POST",
         body: formData,
       });
-
       if (response.ok) {
         const result = await response.text();
-        console.log("Serverantwort:", result); // Gibt die Antwort des Servers in der Konsole aus
+        console.log("Serverantwort:", result);
       } else {
         console.error("Fehler beim Hochladen:", response.status);
       }
@@ -250,18 +248,39 @@ document
         time: document.getElementById("time").value,
       }),
       headers: {
-        "Content-Type": "application/json", // Setze den richtigen Content-Type-Header
+        "Content-Type": "application/json",
       },
     });
-    console.log(response);
     const result = await response.json();
     if (response.ok) {
-      console.log("Serverantwort:", result); // Gibt die Antwort des Servers in der Konsole aus
+      console.log("Serverantwort:", result);
       showFeedback(true);
     } else {
       showFeedback(false);
-      console.log(result);
       if (result.message === "Login fehlgeschlagen") location.href = "/login";
       console.error("Fehler beim Hochladen:", response.status);
     }
   });
+
+  async function getUploadedImages() {
+    try {
+      const response = await fetch("/images");
+      const images = await response.json();
+      
+      const imageContainer = document.getElementById("imageContainer");
+      imageContainer.innerHTML = ""; // Leere den Container, um neue Bilder einzufügen
+      
+      images.forEach(image => {
+        const img = document.createElement("img");
+        img.src = image.url;
+        img.alt = "Uploaded Image";
+        imageContainer.appendChild(img);
+      });
+      
+      // Zeige den Container an, wenn Bilder vorhanden sind
+      imageContainer.style.display = images.length > 0 ? "block" : "none";
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Bilder:", error);
+    }
+  }
+  
