@@ -7,7 +7,6 @@ socket.emit("login", {
 socket.on("login", () => (location.href = "/login"));
 socket.on("reload", () => {
   getImages();
-  getUploadedImages(); // Neu hinzugefügt, um die hochgeladenen Bilder abzurufen
 });
 
 document
@@ -76,7 +75,6 @@ async function getImages() {
     }
     imageUrls.forEach((url) => {
       const fileName = extrahiereSlug(url.url);
-      console.log(fileName);
       if (fileName.match(/\.(jpeg|jpg|gif|png)$/i) !== null) {
         const img = document.createElement("img");
         element = img;
@@ -196,7 +194,6 @@ async function share(id, element) {
 
 async function deleteImage(imageId) {
   try {
-    console.log(imageId);
     const response = await fetch(`/images/${imageId}`, {
       method: "DELETE",
     });
@@ -228,7 +225,6 @@ document
       });
       if (response.ok) {
         const result = await response.text();
-        console.log("Serverantwort:", result);
       } else {
         console.error("Fehler beim Hochladen:", response.status);
       }
@@ -253,7 +249,6 @@ document
     });
     const result = await response.json();
     if (response.ok) {
-      console.log("Serverantwort:", result);
       showFeedback(true);
     } else {
       showFeedback(false);
@@ -268,8 +263,7 @@ document
       const images = await response.json();
       
       const imageContainer = document.getElementById("imageContainer");
-      imageContainer.innerHTML = ""; // Leere den Container, um neue Bilder einzufügen
-      
+      imageContainer.innerHTML = ""; 
       images.forEach(image => {
         const img = document.createElement("img");
         img.src = image.url;
@@ -277,10 +271,8 @@ document
         imageContainer.appendChild(img);
       });
       
-      // Zeige den Container an, wenn Bilder vorhanden sind
       imageContainer.style.display = images.length > 0 ? "block" : "none";
     } catch (error) {
       console.error("Fehler beim Abrufen der Bilder:", error);
     }
   }
-  

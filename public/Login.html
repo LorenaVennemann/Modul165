@@ -82,7 +82,6 @@
               password: event.target.password.value,
             };
             // Hier können Sie die Daten in einem JSON-Format verwenden oder an den Server senden
-            console.log("Formulardaten:", formData);
 
             const response = await fetch("/login", {
               method: "POST",
@@ -94,7 +93,6 @@
 
             if (response.ok) {
               const data = await response.json(); // Die Antwort als JSON parsen
-              console.log(data)
               window.localStorage.setItem("username", data.user.username)
               window.localStorage.setItem("password", data.user.password)
               location.href = "/"

@@ -4,17 +4,17 @@ const http = require("http");
 const socketIo = require("socket.io");
 const multer = require("multer");
 const path = require("path");
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const uri = "mongodb://127.0.0.2:27017";
+const uri = "mongodb://172.17.0.2:27017";
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-app.use(express.json()); // Parse JSON-encoded request bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 let userconnections = {};
 
 // Verbindung zur Datenbank einmalig herstellen
@@ -172,7 +172,6 @@ app.use(express.json());
 app.post("/images", express.json(), async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log(username, password, req.body);
     if (!username || !password) {
       res.status(400).json({ message: "logout" });
       return;
@@ -263,7 +262,6 @@ app.get("/images/:filename", async (req, res) => {
     const gridfs = await getGridFS();
     const filename = req.params.filename;
     const file = await gridfs.find({ filename }).toArray();
-    console.log(file);
     if (!file || file.length === 0) {
       return res.status(404).json({ message: "Bild nicht gefunden." });
     }
@@ -283,7 +281,6 @@ app.get("/images/:filename", async (req, res) => {
 app.post("/upload", upload.single("image"), async (req, res) => {
   try {
     const gridfs = await getGridFS();
-    console.log(req.body);
     const json = JSON.parse(req.body.json);
 
     const { username, password, time } = json;
@@ -307,10 +304,8 @@ app.post("/upload", upload.single("image"), async (req, res) => {
 
     uploadStream.on("finish", async () => {
       const newDocumnetId = await uploadStream.id.toString();
-      console.log("iftie", time);
       if (time && time != "") deleteOnTime(newDocumnetId, time);
       await updateFichiers(user, newDocumnetId);
-      console.log("Datei erfolgreich hochgeladen");
       res.status(200).json({ message: "Datei erfolgreich hochgeladen." });
     });
   } catch (err) {
@@ -350,23 +345,21 @@ app.post("/newTextField", async (req, res) => {
 app.post("/updateTextField", express.json(), async (req, res) => {
   try {
     const { username, password, value, id } = req.body;
-    console.log(username, password, value, id);
     const user = await login(username, password);
     if (!user) {
       return res.status(401).json({ message: "Login fehlgeschlagen" });
     } else {
       sendReload(username);
     }
-      const objectId = new ObjectId(id);
-      const db = client.db("Transfere");
-      const collection = db.collection("images");
-      await collection.updateOne(
-        { _id: objectId }, // Use the _id field directly
-        { $set: { text: value } }
-      );
-      res.status(200).json({"message": "success"})
+    const objectId = new ObjectId(id);
+    const db = client.db("Transfere");
+    const collection = db.collection("images");
+    await collection.updateOne(
+      { _id: objectId }, // Use the _id field directly
+      { $set: { text: value } }
+    );
+    res.status(200).json({ message: "success" });
   } catch (e) {
-    console.log(e);
     res.status(500).json({ message: "Interner Serverfehler." });
   }
 });
@@ -375,10 +368,12 @@ app.post("/updateTextField", express.json(), async (req, res) => {
 app.post("/image/share", async (req, res) => {
   try {
     const { username, id } = req.body;
-    console.log("id username", username, id);
     if ((!username, !id)) res.status(500);
     const user = await getUser(username);
-    if (!user){ res.status(500).send("Fehler"); return;}
+    if (!user) {
+      res.status(500).send("Fehler");
+      return;
+    }
     await updateFichiers(user, id);
     res.status(200);
   } catch (err) {
@@ -390,7 +385,6 @@ app.post("/image/share", async (req, res) => {
 });
 
 async function updateFichiers(user, id) {
-  console.log("update function ", user, id, user.username);
   const fichiers = user.fichiers;
   fichiers.push(id);
   const db = client.db("Transfere");
@@ -405,7 +399,6 @@ async function updateFichiers(user, id) {
 }
 
 async function deleteOnTime(id, time) {
-  console.log("deleteOnTime", id, time);
   setTimeout(async () => {
     const objectId = new ObjectId(id);
     const gridfs = await getGridFS();

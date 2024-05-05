@@ -77,27 +77,24 @@
     document
   .getElementById("registerForm")
   .addEventListener("submit", async function (event) {
-    event.preventDefault(); // Verhindert das Absenden des Formulars
+    event.preventDefault(); 
     const formData = {
       username: event.target.username.value,
       password: event.target.password.value,
     };
-    // Hier können Sie die Daten in einem JSON-Format verwenden oder an den Server senden
-    console.log("Registrierungsdaten:", formData);
 
     const response = await fetch("/register", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json", // Setzen Sie den Content-Type auf JSON
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData), // Konvertieren Sie das Objekt in einen JSON-String
+      body: JSON.stringify(formData),
     });
 
     if (response.ok) {
       document.getElementById("errorText").innerText = ""
-      const data = await response.json(); // Die Antwort als JSON parsen
-      // Hier können Sie weitere Aktionen durchführen, z.B. den Benutzer zur Anmeldeseite umleiten
-      window.location.href = "/Login.html"; // Umleitung zur Anmeldeseite
+      const data = await response.json(); 
+      window.location.href = "/Login.html";
     } else {
       document.getElementById("errorText").innerText = "Fehler beim Registrieren. Verwenden sie einen anderen Benutzernamen"
       console.error(
