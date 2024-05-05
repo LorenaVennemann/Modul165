@@ -67,8 +67,9 @@
         <input type="text" placeholder="Benutzername" name="username" required />
         <input type="password" placeholder="Passwort" name="password" required />
         <input type="submit" value="Login" />
+        <a>Neu bei uns?</a>
+        <a href="/register" style="color: green;">Register</a>
         <p style="color: red;" id="errorText"></p>
-
       </form>
 
       <script>
@@ -94,8 +95,8 @@
             if (response.ok) {
               const data = await response.json(); // Die Antwort als JSON parsen
               console.log(data)
-              window.localStorage.setItem("username", data.username)
-              window.localStorage.setItem("password", data.password)
+              window.localStorage.setItem("username", data.user.username)
+              window.localStorage.setItem("password", data.user.password)
               location.href = "/"
             } else {
               document.getElementById("errorText").innerText = "Fehler beim Anmelden. Überprüfe die Anmeldedaten"

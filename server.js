@@ -1,7 +1,6 @@
 const express = require("express");
 const { MongoClient, GridFSBucket, ObjectId } = require("mongodb");
 const http = require("http");
-const fs = require("fs");
 const socketIo = require("socket.io");
 const multer = require("multer");
 const path = require("path");
@@ -109,16 +108,10 @@ app.post("/register", async (req, res) => {
       fichiers: [],
     });
 
-    // Alle Benutzerdaten abrufen und anzeigen
-    const allUsers = await collection.find().toArray();
-    console.log("Alle Benutzerdaten:", allUsers);
-
-    res
-      .status(201)
-      .json({
-        message: "Benutzer erfolgreich registriert",
-        user: { username, password },
-      });
+    res.status(201).json({
+      message: "Benutzer erfolgreich registriert",
+      user: { username, password },
+    });
   } catch (err) {
     console.error("Fehler beim Registrieren:", err);
     res
@@ -156,9 +149,8 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
 io.on("connection", (socket) => {
-let globalUsername;
+  let globalUsername;
   console.log(`Neuer Client verbunden: ${socket.id}`);
 
   socket.on("login", async (data) => {
@@ -170,26 +162,14 @@ let globalUsername;
     if (!user) {
       socket.emit("login", "failed");
     }
-    globalUsername = username
+    globalUsername = username;
     if (!userconnections[username]) userconnections[username] = [];
     userconnections[username].push(socket);
   });
-
-  socket.on("newTextField", async (data) => {
-    const db = client.db("Transfere");
-    const collection = db.collection("images");
-    const result = await collection.insertOne({
-        text: ""
-    });
-    const user = await getUser(globalUsername)
-    console.log("user",user, globalUsername)
-    await updateFichiers(user,result.insertedId.toString() )
-})
-
 });
-
+app.use(express.json());
 // Abrufen aller Bilder
-app.post("/images", async (req, res) => {
+app.post("/images", express.json(), async (req, res) => {
   try {
     const { username, password } = req.body;
     console.log(username, password, req.body);
@@ -198,26 +178,31 @@ app.post("/images", async (req, res) => {
       return;
     }
     const user = await login(username, password);
-    if (!user) res.status(400).json({ message: "logout" });
+    if (!user) {
+      res.status(400).json({ message: "logout" });
+      return;
+    }
     const ids = user.fichiers.map((id) => {
       return new ObjectId(id);
     });
 
     const gridfs = await getGridFS();
-    const files = await gridfs.find({ _id: { $in: ids } }).toArray();
+    let files = await gridfs.find({ _id: { $in: ids } }).toArray();
 
     const db = client.db("Transfere");
     const collection = db.collection("images");
     const textFields = await collection.find({ _id: { $in: ids } }).toArray();
-    textFields.forEach((textField) => files.push(textField))
-
+    textFields.forEach((textField) => files.push(textField));
     if (!files || files.length === 0) {
       return res.status(404).json({ message: "Keine Bilder gefunden." });
     }
-
+    files = files.sort(function (a, b) {
+      return new Date(b.uploadDate) - new Date(a.uploadDate);
+    });
     const imageUrls = files.map((file) => ({
       url: `/images/${file.filename}`,
       id: file._id,
+      text: file.text,
     }));
     res.json(imageUrls);
   } catch (err) {
@@ -229,23 +214,25 @@ app.post("/images", async (req, res) => {
 });
 
 //Abrufen eines spezifischen Bildes
-app.get('/images/:filename', async (req, res) => {
-    try {
-        const gridfs = await getGridFS();
-        const filename = req.params.filename;
-        const file = await gridfs.find({ filename }).toArray();
+app.get("/images/:filename", async (req, res) => {
+  try {
+    const gridfs = await getGridFS();
+    const filename = req.params.filename;
+    const file = await gridfs.find({ filename }).toArray();
 
-        if (!file || file.length === 0) {
-            return res.status(404).json({ message: 'Bild nicht gefunden.' });
-        }
-
-        res.set('Content-Type', 'image/webp');
-        const downloadStream = gridfs.openDownloadStreamByName(filename);
-        downloadStream.pipe(res);
-    } catch (err) {
-        console.error('Fehler beim Abrufen des Bildes:', err);
-        res.status(500).json({ message: 'Interner Serverfehler beim Abrufen des Bildes.' });
+    if (!file || file.length === 0) {
+      return res.status(404).json({ message: "Bild nicht gefunden." });
     }
+
+    res.set("Content-Type", "image/webp");
+    const downloadStream = gridfs.openDownloadStreamByName(filename);
+    downloadStream.pipe(res);
+  } catch (err) {
+    console.error("Fehler beim Abrufen des Bildes:", err);
+    res
+      .status(500)
+      .json({ message: "Interner Serverfehler beim Abrufen des Bildes." });
+  }
 });
 
 // Löschen eines Bildes
@@ -253,7 +240,13 @@ app.delete("/images/:id", async (req, res) => {
   try {
     const id = new ObjectId(req.params.id);
     const gridfs = await getGridFS();
-    await gridfs.delete(id);
+    try {
+      await gridfs.delete(id);
+    } catch {
+      const db = client.db("Transfere");
+      const collection = db.collection("images");
+      await collection.deleteOne({ _id: id });
+    }
 
     res.status(200).json({ message: "Bild erfolgreich gelöscht." });
   } catch (err) {
@@ -290,12 +283,14 @@ app.get("/images/:filename", async (req, res) => {
 app.post("/upload", upload.single("image"), async (req, res) => {
   try {
     const gridfs = await getGridFS();
+    console.log(req.body);
     const json = JSON.parse(req.body.json);
 
     const { username, password, time } = json;
     const user = await login(username, password);
     if (!user) {
-      return res.status(401).json({ message: "Login fehlgeschlagen" });
+      res.status(400).json({ message: "logout" });
+      return;
     } else {
       sendReload(username);
     }
@@ -312,8 +307,8 @@ app.post("/upload", upload.single("image"), async (req, res) => {
 
     uploadStream.on("finish", async () => {
       const newDocumnetId = await uploadStream.id.toString();
-      console.log("iftie", time)
-      if (time) deleteOnTime(newDocumnetId, time);
+      console.log("iftie", time);
+      if (time && time != "") deleteOnTime(newDocumnetId, time);
       await updateFichiers(user, newDocumnetId);
       console.log("Datei erfolgreich hochgeladen");
       res.status(200).json({ message: "Datei erfolgreich hochgeladen." });
@@ -326,16 +321,65 @@ app.post("/upload", upload.single("image"), async (req, res) => {
   }
 });
 
+app.post("/newTextField", async (req, res) => {
+  try {
+    const { username, password, time } = req.body;
+    const user = await login(username, password);
+    if (!user) {
+      return res.status(401).json({ message: "Login fehlgeschlagen" });
+    } else {
+      sendReload(username);
+    }
+    const db = client.db("Transfere");
+    const collection = db.collection("images");
+    const newText = await collection.insertOne({
+      text: "",
+      uploadDate: new Date(),
+    });
+    await updateFichiers(user, newText.insertedId.toString());
+    if (time && time != "") deleteOnTime(newText.insertedId.toString(), time);
+    res.status(200).json({ message: "success" });
+  } catch (err) {
+    console.error("Fehler beim Hochladen der Datei:", err);
+    res
+      .status(500)
+      .json({ message: "Interner Serverfehler beim Hochladen der Datei." });
+  }
+});
+
+app.post("/updateTextField", express.json(), async (req, res) => {
+  try {
+    const { username, password, value, id } = req.body;
+    console.log(username, password, value, id);
+    const user = await login(username, password);
+    if (!user) {
+      return res.status(401).json({ message: "Login fehlgeschlagen" });
+    } else {
+      sendReload(username);
+    }
+      const objectId = new ObjectId(id);
+      const db = client.db("Transfere");
+      const collection = db.collection("images");
+      await collection.updateOne(
+        { _id: objectId }, // Use the _id field directly
+        { $set: { text: value } }
+      );
+      res.status(200).json({"message": "success"})
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Interner Serverfehler." });
+  }
+});
+
 // Teilen eines Bildes
 app.post("/image/share", async (req, res) => {
   try {
     const { username, id } = req.body;
     console.log("id username", username, id);
-    if ((!username, !id)) res.status(200);
+    if ((!username, !id)) res.status(500);
     const user = await getUser(username);
-    if (!user) res.send("200");
+    if (!user){ res.status(500).send("Fehler"); return;}
     await updateFichiers(user, id);
-
     res.status(200);
   } catch (err) {
     console.error("Fehler beim Teilen des Bildes:", err);
@@ -361,12 +405,18 @@ async function updateFichiers(user, id) {
 }
 
 async function deleteOnTime(id, time) {
-    console.log("deleteOnTime", id, time)
+  console.log("deleteOnTime", id, time);
   setTimeout(async () => {
     const objectId = new ObjectId(id);
     const gridfs = await getGridFS();
-    await gridfs.delete(objectId);
-  }, time);
+    try {
+      await gridfs.delete(objectId);
+    } catch {
+      const db = client.db("Transfere");
+      const collection = db.collection("images");
+      await collection.deleteOne({ _id: objectId });
+    }
+  }, time * 1000);
 }
 
 // Server starten
