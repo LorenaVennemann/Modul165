@@ -4,6 +4,7 @@ socket.emit("login", {
   username: window.localStorage.getItem("username"),
   password: window.localStorage.getItem("password"),
 });
+
 socket.on("login", () => (location.href = "/login"));
 socket.on("reload", () => {
   getImages();
@@ -39,11 +40,6 @@ function showFeedback(status) {
       errorMessageElement.style.opacity = 1 - i / 100;
     }, i * 10 + initTime);
   }
-}
-
-function extrahiereSlug(url) {
-  const urlTeile = url.split("/");
-  return urlTeile[urlTeile.length - 1];
 }
 
 function extrahiereSlug(url) {
@@ -102,15 +98,18 @@ async function getImages() {
       if (!(url.text || url.text === "")) {
         downloadBtn = document.createElement("button");
         downloadBtn.innerText = "Download";
+        downloadBtn.classList.add("image-action-btn");
         downloadBtn.addEventListener("click", function () {
           downloadImage(fileName, url.url);
         });
       }
 
       const sahreInp = document.createElement("input");
+      sahreInp.classList.add("share-input");
 
       const sahreBtn = document.createElement("button");
       sahreBtn.innerText = "Teilen";
+      sahreBtn.classList.add("share-btn");
       sahreBtn.addEventListener("click", function (event) {
         event.stopPropagation();
         share(url.id, sahreInp);
@@ -118,6 +117,7 @@ async function getImages() {
 
       const deleteBtn = document.createElement("button");
       deleteBtn.innerText = "Delete";
+      deleteBtn.classList.add("delete-btn");
       deleteBtn.addEventListener("click", function (event) {
         event.stopPropagation();
         deleteImage(url.id);
@@ -262,25 +262,24 @@ document
     }
   });
 
-  async function getUploadedImages() {
-    try {
-      const response = await fetch("/images");
-      const images = await response.json();
-      
-      const imageContainer = document.getElementById("imageContainer");
-      imageContainer.innerHTML = ""; // Leere den Container, um neue Bilder einzufügen
-      
-      images.forEach(image => {
-        const img = document.createElement("img");
-        img.src = image.url;
-        img.alt = "Uploaded Image";
-        imageContainer.appendChild(img);
-      });
-      
-      // Zeige den Container an, wenn Bilder vorhanden sind
-      imageContainer.style.display = images.length > 0 ? "block" : "none";
-    } catch (error) {
-      console.error("Fehler beim Abrufen der Bilder:", error);
-    }
+async function getUploadedImages() {
+  try {
+    const response = await fetch("/images");
+    const images = await response.json();
+
+    const imageContainer = document.getElementById("imageContainer");
+    imageContainer.innerHTML = ""; // Leere den Container, um neue Bilder einzufügen
+
+    images.forEach((image) => {
+      const img = document.createElement("img");
+      img.src = image.url;
+      img.alt = "Uploaded Image";
+      imageContainer.appendChild(img);
+    });
+
+    // Zeige den Container an, wenn Bilder vorhanden sind
+    imageContainer.style.display = images.length > 0 ? "block" : "none";
+  } catch (error) {
+    console.error("Fehler beim Abrufen der Bilder:", error);
   }
-  
+}
