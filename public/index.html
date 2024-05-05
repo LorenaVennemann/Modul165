@@ -40,7 +40,8 @@
       transition: background-color 0.3s;
     }
 
-    .navbar a.active, .navbar a:hover {
+    .navbar a.active,
+    .navbar a:hover {
       background-color: #f2f2f2;
     }
 
@@ -61,7 +62,8 @@
       display: none;
     }
 
-    .upload-btn {
+    .upload-btn,
+    .image-action-btn {
       padding: 10px 20px;
       background-color: #4CAF50;
       color: white;
@@ -69,10 +71,36 @@
       border-radius: 4px;
       cursor: pointer;
       transition: background-color 0.3s;
+      margin-right: 10px;
     }
 
-    .upload-btn:hover {
+    .upload-btn:hover,
+    .image-action-btn:hover {
       background-color: #45a049;
+    }
+
+    .share-input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 10px;
+      width: 150px;
+    }
+
+    .share-btn,
+    .delete-btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .share-btn:hover,
+    .delete-btn:hover {
+      background-color: #0056b3;
     }
 
     .uploaded-images {
@@ -101,7 +129,7 @@
         <a class="active" href="#" onclick="showUpload()">Bild hochladen</a>
         <a href="#" onclick="showImages()">Alle Bilder</a> <!-- Hier den Link hinzufügen -->
       </div>
-      
+
       <div id="uploadForm" style="display: none">
         <h1>Bild hochladen</h1>
         <form id="form" enctype="multipart/form-data">
@@ -116,10 +144,10 @@
           </select>
           <button class="upload-btn" type="submit">&#128206; Hochladen</button>
         </form>
-        <button id="createTextField">Erstelle ein neues Text Feld</button>
+        <button id="createTextField" class="upload-btn">Erstelle ein neues Text Feld</button>
         <p id="errorMessage"></p>
       </div>
-      
+
       <!-- Hier werden die hochgeladenen Bilder angezeigt -->
       <div id="imageContainer" class="uploaded-images" style="display: none">
         <h1>Alle Bilder</h1>
