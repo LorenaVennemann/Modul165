@@ -399,7 +399,7 @@ async function updateFichiers(user, id) {
 }
 
 async function deleteOnTime(id, time) {
-  setTimeout(async () => {
+    (async () => {
     const objectId = new ObjectId(id);
     const gridfs = await getGridFS();
     try {

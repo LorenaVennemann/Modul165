@@ -7,24 +7,10 @@ socket.emit("login", {
 
 socket.on("login", () => (location.href = "/login"));
 socket.on("reload", () => {
-  getImages();
+  const imageContainer = document.getElementById("imageContainer");
+
+  if(imageContainer.style.display === "block") getImages();
 });
-
-document
-  .getElementById("uploadForm")
-  .addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-
-    await fetch("/upload", { method: "POST", body: formData })
-      .then((res) => {
-        showFeedback(true);
-      })
-      .catch(() => {
-        showFeedback(false);
-      });
-  });
 
 function showFeedback(status) {
   const errorMessageElement = document.getElementById("errorMessage");
@@ -237,7 +223,7 @@ document
   .getElementById("createTextField")
   .addEventListener("click", async () => {
     const response = await fetch("/newTextField", {
-      method: "POST",
+      method: "POST", 
       body: JSON.stringify({
         username: window.localStorage.getItem("username"),
         password: window.localStorage.getItem("password"),
