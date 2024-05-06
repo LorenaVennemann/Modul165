@@ -8,8 +8,7 @@ socket.emit("login", {
 socket.on("login", () => (location.href = "/login"));
 socket.on("reload", () => {
   const imageContainer = document.getElementById("imageContainer");
-
-  if(imageContainer.style.display === "block") getImages();
+  if(imageContainer.style.display === "block" && !(document.activeElement instanceof HTMLTextAreaElement)) getImages();
 });
 
 function showFeedback(status) {
