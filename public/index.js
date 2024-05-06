@@ -105,13 +105,13 @@ async function getImages() {
         event.stopPropagation();
         deleteImage(url.id);
       });
-
+      sahreInp.placeholder = "Username zum teilen"
       const container = document.createElement("div");
-      container.appendChild(sahreInp);
       container.appendChild(element);
       if (!(url.text || url.text === "")) container.appendChild(downloadBtn);
       container.appendChild(deleteBtn);
       container.appendChild(sahreBtn);
+      container.appendChild(sahreInp);  
       imageContainer.appendChild(container);
     });
 
