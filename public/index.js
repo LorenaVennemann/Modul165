@@ -210,7 +210,9 @@ document
       });
       if (response.ok) {
         const result = await response.text();
+        showFeedback(true)
       } else {
+        showFeedback(false)
         console.error("Fehler beim Hochladen:", response.status);
       }
     } catch (error) {
